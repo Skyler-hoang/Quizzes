@@ -1,0 +1,679 @@
+import React, { useState, useEffect } from 'react';
+
+const HematologyQuizComplete = () => {
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [score, setScore] = useState({ correct: 0, total: 0 });
+
+  // Complete set of 100 questions
+  const questions = [
+    {
+      question: "Which site is the primary organ of red blood cell production during fetal development?",
+      options: ["Yolk sac", "Spleen", "Liver", "Bone marrow", "Thymus"],
+      correct: "Liver"
+    },
+    {
+      question: "What is the predominant hemoglobin in fetuses that has higher oxygen affinity than adult hemoglobin?",
+      options: ["HbA1 (α2β2)", "HbF (α2γ2)", "HbS (α2βs2)", "HbC (α2βc2)", "HbA2 (α2δ2)"],
+      correct: "HbF (α2γ2)"
+    },
+    {
+      question: "Which blood type is considered the universal red cell donor?",
+      options: ["Type A", "Type AB", "Type B", "Type O", "Type Rh-positive"],
+      correct: "Type O"
+    },
+    {
+      question: "What is the master cell that can differentiate into all blood cell lineages?",
+      options: ["Lymphoid stem cell", "Myeloid stem cell", "Erythroblast", "Multipotent stem cell", "Megakaryoblast"],
+      correct: "Multipotent stem cell"
+    },
+    {
+      question: "What are young red blood cells that still contain remnants of cellular machinery called?",
+      options: ["Erythroblasts", "Reticulocytes", "Spherocytes", "Schistocytes", "Target cells"],
+      correct: "Reticulocytes"
+    },
+    {
+      question: "Which term describes increased proportion of immature neutrophils in blood?",
+      options: ["Right shift", "Leukoerythroblastic reaction", "Left shift", "Neutrophilia", "Bandemia"],
+      correct: "Left shift"
+    },
+    {
+      question: "What is the mnemonic 'PACMAN Eats' used to remember causes of?",
+      options: ["Thrombocytopenia", "Neutropenia", "Eosinophilia", "Lymphocytosis", "Basophilia"],
+      correct: "Eosinophilia"
+    },
+    {
+      question: "Which test detects antibodies already attached to patient's red blood cells?",
+      options: ["Indirect Coombs test", "Direct Coombs test", "Cold agglutinin test", "Osmotic fragility test", "Ham test"],
+      correct: "Direct Coombs test"
+    },
+    {
+      question: "What is the first step in platelet plug formation?",
+      options: ["Aggregation", "Activation", "Adhesion", "Injury", "Exposure"],
+      correct: "Injury"
+    },
+    {
+      question: "Which pathway is triggered by blood contact with negatively charged surfaces?",
+      options: ["Extrinsic pathway", "Common pathway", "Intrinsic pathway", "Fibrinolytic pathway", "Complement pathway"],
+      correct: "Intrinsic pathway"
+    },
+    {
+      question: "Which protein initiates the extrinsic coagulation pathway?",
+      options: ["Factor XII", "Tissue factor", "von Willebrand factor", "Fibrinogen", "Antithrombin"],
+      correct: "Tissue factor"
+    },
+    {
+      question: "What are red blood cells with irregular spicules seen in liver disease called?",
+      options: ["Echinocytes", "Acanthocytes", "Dacrocytes", "Schistocytes", "Spherocytes"],
+      correct: "Acanthocytes"
+    },
+    {
+      question: "Which inclusion represents nuclear remnants in red blood cells indicating splenic dysfunction?",
+      options: ["Basophilic stippling", "Pappenheimer bodies", "Heinz bodies", "Howell-Jolly bodies", "Iron granules"],
+      correct: "Howell-Jolly bodies"
+    },
+    {
+      question: "What is the most common cause of microcytic anemia worldwide?",
+      options: ["Thalassemia", "Lead poisoning", "Iron deficiency", "Sideroblastic anemia", "Chronic disease"],
+      correct: "Iron deficiency"
+    },
+    {
+      question: "Which formula distinguishes thalassemia from iron deficiency?",
+      options: ["Reticulocyte production index", "Mentzer index", "Iron saturation ratio", "Transferrin receptor ratio", "Ferritin index"],
+      correct: "Mentzer index"
+    },
+    {
+      question: "What causes hemoglobin polymerization and red blood cell sickling?",
+      options: ["Gene deletion", "Point mutation", "Chromosomal translocation", "Gene duplication", "Epigenetic modification"],
+      correct: "Point mutation"
+    },
+    {
+      question: "Which is the most common porphyria causing skin photosensitivity?",
+      options: ["Acute intermittent porphyria", "Porphyria cutanea tarda", "Erythropoietic protoporphyria", "Hereditary coproporphyria", "Variegate porphyria"],
+      correct: "Porphyria cutanea tarda"
+    },
+    {
+      question: "What does the 'D' in the LLEEAAD mnemonic for lead poisoning represent?",
+      options: ["Diarrhea", "Dementia", "Drops (wrist/foot)", "Delirium", "Dental problems"],
+      correct: "Drops (wrist/foot)"
+    },
+    {
+      question: "Which is a genetic defect in platelet adhesion via GpIb receptor?",
+      options: ["Glanzmann thrombasthenia", "Bernard-Soulier syndrome", "von Willebrand disease", "Immune thrombocytopenia", "May-Hegglin anomaly"],
+      correct: "Bernard-Soulier syndrome"
+    },
+    {
+      question: "What is TTP caused by?",
+      options: ["Complement deficiency", "ADAMTS13 deficiency", "Protein C deficiency", "Antithrombin deficiency", "Factor V deficiency"],
+      correct: "ADAMTS13 deficiency"
+    },
+    {
+      question: "Which is the most common genetic cause of venous thrombosis?",
+      options: ["Protein C deficiency", "Protein S deficiency", "Factor V Leiden", "Prothrombin G20210A", "Antithrombin deficiency"],
+      correct: "Factor V Leiden"
+    },
+    {
+      question: "What characterizes Reed-Sternberg cells?",
+      options: ["'Hairy' projections", "'Owl-eye' nuclei", "Auer rods", "Smudge appearance", "Birbeck granules"],
+      correct: "'Owl-eye' nuclei"
+    },
+    {
+      question: "Which lymphoma is associated with c-myc translocation?",
+      options: ["Follicular lymphoma", "Mantle cell lymphoma", "Burkitt lymphoma", "Marginal zone lymphoma", "Diffuse large B-cell lymphoma"],
+      correct: "Burkitt lymphoma"
+    },
+    {
+      question: "What does CRAB stand for in multiple myeloma?",
+      options: ["Calcium elevation, Renal failure, Anemia, Bone lesions", "Confusion, Rash, Arthritis, Bleeding", "Cardiomyopathy, Retinopathy, Acidosis, Bradycardia", "Creatinine elevation, Rales, Ascites, Bruising", "Chest pain, Rigors, Abdominal pain, Back pain"],
+      correct: "Calcium elevation, Renal failure, Anemia, Bone lesions"
+    },
+    {
+      question: "Which leukemia is characterized by 'smudge cells'?",
+      options: ["Acute lymphoblastic leukemia", "Acute myelogenous leukemia", "Chronic lymphocytic leukemia", "Hairy cell leukemia", "Chronic myelogenous leukemia"],
+      correct: "Chronic lymphocytic leukemia"
+    },
+    {
+      question: "What is the Philadelphia chromosome associated with?",
+      options: ["Acute lymphoblastic leukemia", "Chronic lymphocytic leukemia", "Chronic myelogenous leukemia", "Acute myelogenous leukemia", "Hairy cell leukemia"],
+      correct: "Chronic myelogenous leukemia"
+    },
+    {
+      question: "Which blood component contains all clotting factors?",
+      options: ["Packed RBCs", "Platelets", "Fresh frozen plasma", "Cryoprecipitate", "Albumin"],
+      correct: "Fresh frozen plasma"
+    },
+    {
+      question: "What does HIT stand for?",
+      options: ["Heparin-induced thrombosis", "Heparin-induced thrombocytopenia", "Hemolytic-induced thrombosis", "Hypercoagulable-induced thrombosis", "Hypoxia-induced thrombosis"],
+      correct: "Heparin-induced thrombocytopenia"
+    },
+    {
+      question: "Which drug irreversibly inhibits cyclooxygenase?",
+      options: ["Clopidogrel", "Ticagrelor", "Aspirin", "Prasugrel", "Cilostazol"],
+      correct: "Aspirin"
+    },
+    {
+      question: "What is the specific antidote for dabigatran?",
+      options: ["Protamine sulfate", "Vitamin K", "Idarucizumab", "Andexanet alfa", "Fresh frozen plasma"],
+      correct: "Idarucizumab"
+    },
+    {
+      question: "Which chemotherapy drug causes dose-dependent cardiomyopathy?",
+      options: ["Bleomycin", "Cisplatin", "Anthracyclines", "Vincristine", "Cyclophosphamide"],
+      correct: "Anthracyclines"
+    },
+    {
+      question: "What does methotrexate inhibit?",
+      options: ["Thymidylate synthase", "Dihydrofolate reductase", "Ribonucleotide reductase", "DNA polymerase", "Topoisomerase I"],
+      correct: "Dihydrofolate reductase"
+    },
+    {
+      question: "Which drugs stabilize microtubules?",
+      options: ["Vinca alkaloids", "Taxanes", "Anthracyclines", "Alkylating agents", "Antimetabolites"],
+      correct: "Taxanes"
+    },
+    {
+      question: "When does bone marrow become the primary site of hematopoiesis?",
+      options: ["3-8 weeks", "6 weeks", "10-28 weeks", "18 weeks", "At birth"],
+      correct: "18 weeks"
+    },
+    {
+      question: "What is Group AB blood type also known as?",
+      options: ["Universal red cell donor", "Universal plasma donor", "Universal recipient", "Rh compatible", "ABO compatible"],
+      correct: "Universal plasma donor"
+    },
+    {
+      question: "Which cells are precursors specifically to lymphocytes?",
+      options: ["Myeloid stem cells", "Multipotent stem cells", "Lymphoid stem cells", "Erythroblasts", "Megakaryoblasts"],
+      correct: "Lymphoid stem cells"
+    },
+    {
+      question: "What are large multinucleated cells that fragment to release platelets?",
+      options: ["Megakaryoblasts", "Megakaryocytes", "Thromboblasts", "Giant platelets", "Promegakaryocytes"],
+      correct: "Megakaryocytes"
+    },
+    {
+      question: "Which cells have the unique ability of cross-presentation?",
+      options: ["Macrophages", "B cells", "Dendritic cells", "T cells", "NK cells"],
+      correct: "Dendritic cells"
+    },
+    {
+      question: "What is the laboratory technique that separates hemoglobin variants by electrical charge?",
+      options: ["Flow cytometry", "Hemoglobin electrophoresis", "Mass spectrometry", "Chromatography", "Western blot"],
+      correct: "Hemoglobin electrophoresis"
+    },
+    {
+      question: "Which step follows adhesion in platelet plug formation?",
+      options: ["Injury", "Exposure", "Activation", "Aggregation", "Secretion"],
+      correct: "Activation"
+    },
+    {
+      question: "What are red blood cells deformed by passage through fibrotic bone marrow called?",
+      options: ["Acanthocytes", "Echinocytes", "Dacrocytes", "Spherocytes", "Target cells"],
+      correct: "Dacrocytes"
+    },
+    {
+      question: "Which cells are 'tissue-resident immune cells that phagocytose pathogens'?",
+      options: ["Neutrophils", "Monocytes", "Macrophages", "Dendritic cells", "NK cells"],
+      correct: "Macrophages"
+    },
+    {
+      question: "What is anemia of chronic disease caused by?",
+      options: ["Iron deficiency", "Folate deficiency", "Inflammatory cytokines", "Vitamin B12 deficiency", "Bone marrow failure"],
+      correct: "Inflammatory cytokines"
+    },
+    {
+      question: "Which anemia is characterized by 'ringed sideroblasts'?",
+      options: ["Iron deficiency anemia", "Sideroblastic anemia", "Thalassemia", "Lead poisoning", "Chronic disease anemia"],
+      correct: "Sideroblastic anemia"
+    },
+    {
+      question: "What mutation is associated with polycythemia vera?",
+      options: ["BCR-ABL", "JAK2", "c-myc", "BCL-2", "p53"],
+      correct: "JAK2"
+    },
+    {
+      question: "Which condition causes 'teardrop cells'?",
+      options: ["Iron deficiency", "Thalassemia", "Myelofibrosis", "Spherocytosis", "Sickle cell disease"],
+      correct: "Myelofibrosis"
+    },
+    {
+      question: "What is TRALI?",
+      options: ["Transfusion-related acute liver injury", "Transfusion-related acute lung injury", "Transfusion-related acute lymphocytosis", "Transfusion-related acute leukemia", "Transfusion-related acute lymphopenia"],
+      correct: "Transfusion-related acute lung injury"
+    },
+    {
+      question: "Which mechanism does warfarin use?",
+      options: ["Activates antithrombin", "Inhibits vitamin K epoxide reductase", "Blocks P2Y12 receptors", "Inhibits cyclooxygenase", "Activates protein C"],
+      correct: "Inhibits vitamin K epoxide reductase"
+    },
+    {
+      question: "What do nitrogen mustards require for activation?",
+      options: ["Renal metabolism", "Hepatic activation", "Pulmonary activation", "Cardiac metabolism", "Splenic activation"],
+      correct: "Hepatic activation"
+    },
+    {
+      question: "Which drugs cross the blood-brain barrier?",
+      options: ["Nitrogen mustards", "Anthracyclines", "Nitrosoureas", "Platinum compounds", "Vinca alkaloids"],
+      correct: "Nitrosoureas"
+    },
+    {
+      question: "At what gestational age does the spleen function in fetal erythropoiesis?",
+      options: ["3-8 weeks", "6 weeks-birth", "10-28 weeks", "18 weeks-adult", "28 weeks-birth"],
+      correct: "10-28 weeks"
+    },
+    {
+      question: "What are the earliest forms of globin chains produced during embryonic development?",
+      options: ["α and β", "α and γ", "ζ and ε", "α and δ", "β and γ"],
+      correct: "ζ and ε"
+    },
+    {
+      question: "In ABO hemolytic disease of the newborn, what causes the hemolysis?",
+      options: ["Rh antibodies", "Maternal ABO antibodies", "Fetal antibodies", "Complement activation", "NK cell activation"],
+      correct: "Maternal ABO antibodies"
+    },
+    {
+      question: "What do immature neutrophils with non-segmented nuclei represent?",
+      options: ["Metamyelocytes", "Myelocytes", "Bands", "Blasts", "Promyelocytes"],
+      correct: "Bands"
+    },
+    {
+      question: "What are intracellular storage compartments in platelets called?",
+      options: ["Lysosomes and peroxisomes", "Dense and α granules", "Primary and secondary granules", "Azurophil and specific granules", "Secretory and storage vesicles"],
+      correct: "Dense and α granules"
+    },
+    {
+      question: "What are Kupffer cells?",
+      options: ["Liver lymphocytes", "Liver macrophages", "Liver neutrophils", "Liver dendritic cells", "Liver NK cells"],
+      correct: "Liver macrophages"
+    },
+    {
+      question: "Which cells release histamine in allergic reactions?",
+      options: ["Neutrophils and eosinophils", "Basophils and mast cells", "Monocytes and macrophages", "B cells and plasma cells", "T cells and NK cells"],
+      correct: "Basophils and mast cells"
+    },
+    {
+      question: "What do plasma cells specialize in producing?",
+      options: ["Cytokines", "Chemokines", "Complement", "Antibodies", "Interferons"],
+      correct: "Antibodies"
+    },
+    {
+      question: "Which test determines if serum contains antibodies against donor cells?",
+      options: ["Direct Coombs test", "Indirect Coombs test", "Cold agglutinin test", "Osmotic fragility test", "Kleihauer-Betke test"],
+      correct: "Indirect Coombs test"
+    },
+    {
+      question: "What bridges platelets together during aggregation?",
+      options: ["von Willebrand factor", "Fibrinogen", "Collagen", "Fibronectin", "Vitronectin"],
+      correct: "Fibrinogen"
+    },
+    {
+      question: "Which factors are part of the common coagulation pathway?",
+      options: ["XII, XI, IX, VIII", "VII and tissue factor", "X, V, II, I", "Protein C and S", "XIII, XI, IX"],
+      correct: "X, V, II, I"
+    },
+    {
+      question: "What enhances antithrombin activity?",
+      options: ["Warfarin", "Heparin", "Aspirin", "Clopidogrel", "Vitamin K"],
+      correct: "Heparin"
+    },
+    {
+      question: "Which red blood cells have regular, evenly spaced projections?",
+      options: ["Acanthocytes", "Echinocytes", "Schistocytes", "Spherocytes", "Target cells"],
+      correct: "Echinocytes"
+    },
+    {
+      question: "What indicates mechanical hemolysis on blood smear?",
+      options: ["Spherocytes", "Target cells", "Schistocytes", "Elliptocytes", "Stomatocytes"],
+      correct: "Schistocytes"
+    },
+    {
+      question: "What are 'bite cells' caused by?",
+      options: ["Osmotic fragility", "Membrane defects", "Splenic macrophage removal", "Oxidative damage", "Mechanical trauma"],
+      correct: "Splenic macrophage removal"
+    },
+    {
+      question: "Which anemia shows macro-ovalocytes?",
+      options: ["Iron deficiency", "Thalassemia", "Megaloblastic anemia", "Sickle cell disease", "Spherocytosis"],
+      correct: "Megaloblastic anemia"
+    },
+    {
+      question: "What appears as blue dots in red blood cells?",
+      options: ["Howell-Jolly bodies", "Basophilic stippling", "Pappenheimer bodies", "Heinz bodies", "Malaria parasites"],
+      correct: "Basophilic stippling"
+    },
+    {
+      question: "Which anemia has the highest MCV?",
+      options: ["Iron deficiency (MCV 65)", "Thalassemia (MCV 70)", "Normal (MCV 90)", "B12 deficiency (MCV 120)", "Chronic disease (MCV 85)"],
+      correct: "B12 deficiency (MCV 120)"
+    },
+    {
+      question: "What distinguishes intrinsic from extrinsic hemolytic anemia?",
+      options: ["Severity of anemia", "Red blood cell defects vs external factors", "Presence of spherocytes", "Response to splenectomy", "Age of onset"],
+      correct: "Red blood cell defects vs external factors"
+    },
+    {
+      question: "Which vitamin deficiency causes both anemia and neurologic symptoms?",
+      options: ["Folate", "Vitamin B12", "Vitamin B6", "Riboflavin", "Niacin"],
+      correct: "Vitamin B12"
+    },
+    {
+      question: "What increases fetal hemoglobin in sickle cell disease?",
+      options: ["Folic acid", "Hydroxyurea", "Iron supplements", "Vitamin B12", "Erythropoietin"],
+      correct: "Hydroxyurea"
+    },
+    {
+      question: "How many α-globin genes does each person normally have?",
+      options: ["2", "3", "4", "5", "6"],
+      correct: "4"
+    },
+    {
+      question: "Which porphyria causes abdominal pain and neuropsychiatric symptoms?",
+      options: ["Porphyria cutanea tarda", "Acute intermittent porphyria", "Erythropoietic protoporphyria", "Hereditary coproporphyria", "Variegate porphyria"],
+      correct: "Acute intermittent porphyria"
+    },
+    {
+      question: "What do the 'Lead Lines' in LLEEAAD refer to?",
+      options: ["Neurologic findings", "Gingival findings", "Abdominal findings", "Bone findings", "Renal findings"],
+      correct: "Gingival findings"
+    },
+    {
+      question: "Which syndrome has defective platelet aggregation?",
+      options: ["Bernard-Soulier syndrome", "Glanzmann thrombasthenia", "von Willebrand disease", "Wiskott-Aldrich syndrome", "May-Hegglin anomaly"],
+      correct: "Glanzmann thrombasthenia"
+    },
+    {
+      question: "What typically causes HUS?",
+      options: ["ADAMTS13 deficiency", "Complement deficiency", "Shiga toxin-producing E. coli", "Autoimmune antibodies", "Genetic mutations"],
+      correct: "Shiga toxin-producing E. coli"
+    },
+    {
+      question: "Which is the most common inherited bleeding disorder?",
+      options: ["Hemophilia A", "Hemophilia B", "von Willebrand disease", "Factor V deficiency", "Factor VII deficiency"],
+      correct: "von Willebrand disease"
+    },
+    {
+      question: "What causes both thrombosis and bleeding simultaneously?",
+      options: ["TTP", "HUS", "DIC", "ITP", "HIT"],
+      correct: "DIC"
+    },
+    {
+      question: "Which lymphoma subtype is most common in Hodgkin lymphoma?",
+      options: ["Mixed cellularity", "Lymphocyte rich", "Lymphocyte depleted", "Nodular sclerosis", "Nodular lymphocyte predominant"],
+      correct: "Nodular sclerosis"
+    },
+    {
+      question: "What translocation is associated with follicular lymphoma?",
+      options: ["t(14;18) BCL-2", "t(8;14) c-myc", "t(11;14) cyclin D1", "t(9;22) BCR-ABL", "t(15;17) PML-RARα"],
+      correct: "t(14;18) BCL-2"
+    },
+    {
+      question: "Which lymphoma appears as 'starry sky'?",
+      options: ["Follicular lymphoma", "Burkitt lymphoma", "Mantle cell lymphoma", "Marginal zone lymphoma", "Diffuse large B-cell lymphoma"],
+      correct: "Burkitt lymphoma"
+    },
+    {
+      question: "What is MALT lymphoma associated with?",
+      options: ["Immunosuppression", "Chronic inflammation", "Viral infections", "Radiation exposure", "Chemical exposure"],
+      correct: "Chronic inflammation"
+    },
+    {
+      question: "Which leukemia is associated with HTLV?",
+      options: ["Acute lymphoblastic leukemia", "Chronic lymphocytic leukemia", "Adult T-cell lymphoma", "Hairy cell leukemia", "Chronic myelogenous leukemia"],
+      correct: "Adult T-cell lymphoma"
+    },
+    {
+      question: "What is MGUS?",
+      options: ["Multiple myeloma", "Monoclonal gammopathy of undetermined significance", "Waldenström macroglobulinemia", "Heavy chain disease", "Amyloidosis"],
+      correct: "Monoclonal gammopathy of undetermined significance"
+    },
+    {
+      question: "What characterizes hairy cell leukemia?",
+      options: ["Auer rods", "'Hairy' projections", "Reed-Sternberg cells", "Smudge cells", "Flame cells"],
+      correct: "'Hairy' projections"
+    },
+    {
+      question: "Which mutation is found in most chronic myelogenous leukemia cases?",
+      options: ["JAK2", "BCR-ABL", "FLT3", "NPM1", "CEBPA"],
+      correct: "BCR-ABL"
+    },
+    {
+      question: "What causes extramedullary hematopoiesis in myelofibrosis?",
+      options: ["Bone marrow hyperplasia", "Bone marrow fibrosis", "Bone marrow necrosis", "Bone marrow edema", "Bone marrow hemorrhage"],
+      correct: "Bone marrow fibrosis"
+    },
+    {
+      question: "Which component is concentrated fibrinogen?",
+      options: ["Fresh frozen plasma", "Platelets", "Cryoprecipitate", "Packed RBCs", "Albumin"],
+      correct: "Cryoprecipitate"
+    },
+    {
+      question: "What is TACO?",
+      options: ["Transfusion-associated cardiac overload", "Transfusion-associated circulatory overload", "Transfusion-associated cellular overload", "Transfusion-associated coagulation overload", "Transfusion-associated complement overload"],
+      correct: "Transfusion-associated circulatory overload"
+    },
+    {
+      question: "What neutralizes heparin?",
+      options: ["Vitamin K", "Protamine sulfate", "Fresh frozen plasma", "Andexanet alfa", "Idarucizumab"],
+      correct: "Protamine sulfate"
+    },
+    {
+      question: "Which drugs are P2Y12 receptor antagonists?",
+      options: ["Aspirin and dipyridamole", "Eptifibatide and tirofiban", "Clopidogrel and prasugrel", "Cilostazol and dipyridamole", "Abciximab and eptifibatide"],
+      correct: "Clopidogrel and prasugrel"
+    },
+    {
+      question: "What do tissue plasminogen activators dissolve?",
+      options: ["Platelet plugs", "Existing clots", "Fibrinogen", "von Willebrand factor", "Factor VIII"],
+      correct: "Existing clots"
+    },
+    {
+      question: "Which chemotherapy drug causes pulmonary fibrosis?",
+      options: ["Doxorubicin", "Vincristine", "Bleomycin", "Cisplatin", "Cyclophosphamide"],
+      correct: "Bleomycin"
+    },
+    {
+      question: "What does 5-Fluorouracil inhibit?",
+      options: ["Dihydrofolate reductase", "Thymidylate synthase", "Ribonucleotide reductase", "DNA polymerase", "RNA polymerase"],
+      correct: "Thymidylate synthase"
+    },
+    {
+      question: "Which drugs prevent microtubule polymerization?",
+      options: ["Taxanes", "Vinca alkaloids", "Anthracyclines", "Alkylating agents", "Topoisomerase inhibitors"],
+      correct: "Vinca alkaloids"
+    },
+    {
+      question: "What do topoisomerase I inhibitors prevent?",
+      options: ["DNA cross-linking", "DNA unwinding", "Microtubule formation", "Protein synthesis", "Cell membrane formation"],
+      correct: "DNA unwinding"
+    },
+    {
+      question: "Which drug is a selective estrogen receptor modulator?",
+      options: ["Anastrozole", "Letrozole", "Tamoxifen", "Fulvestrant", "Exemestane"],
+      correct: "Tamoxifen"
+    },
+    {
+      question: "What stimulates blood cell production?",
+      options: ["Antiemetics", "Growth factors", "Protective agents", "Chelating agents", "Antioxidants"],
+      correct: "Growth factors"
+    },
+    {
+      question: "Which organ shows predictable toxicity from cisplatin?",
+      options: ["Heart", "Lungs", "Liver", "Kidneys", "Brain"],
+      correct: "Kidneys"
+    },
+    {
+      question: "What is the mechanism of hydroxyurea?",
+      options: ["DNA cross-linking", "Microtubule disruption", "Ribonucleotide reductase inhibition", "Topoisomerase inhibition", "Protein synthesis inhibition"],
+      correct: "Ribonucleotide reductase inhibition"
+    }
+  ];
+
+  // Shuffle array function
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Get random question with shuffled options
+  const getRandomQuestion = () => {
+    const randomIndex = Math.floor(Math.random() * questions.length);
+    const question = questions[randomIndex];
+    const shuffledOptions = shuffleArray(question.options);
+    
+    return {
+      ...question,
+      shuffledOptions,
+      correctIndex: shuffledOptions.indexOf(question.correct)
+    };
+  };
+
+  // Initialize with first question
+  useEffect(() => {
+    setCurrentQuestion(getRandomQuestion());
+  }, []);
+
+  const handleAnswerSelect = (index) => {
+    setSelectedAnswer(index);
+  };
+
+  const handleSubmit = () => {
+    setShowAnswer(true);
+    const isCorrect = selectedAnswer === currentQuestion.correctIndex;
+    setScore(prev => ({
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      total: prev.total + 1
+    }));
+  };
+
+  const handleNextQuestion = () => {
+    setCurrentQuestion(getRandomQuestion());
+    setSelectedAnswer(null);
+    setShowAnswer(false);
+  };
+
+  const resetScore = () => {
+    setScore({ correct: 0, total: 0 });
+  };
+
+  if (!currentQuestion) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  const isCorrect = selectedAnswer === currentQuestion.correctIndex;
+  const percentage = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-white min-h-screen">
+      {/* Header */}
+      <div className="bg-blue-600 text-white p-6 rounded-lg mb-6">
+        <h1 className="text-2xl font-bold mb-2">Complete Hematology & Oncology Quiz</h1>
+        <p className="text-blue-100 mb-3">100 Questions - Comprehensive Review</p>
+        <div className="flex justify-between items-center">
+          <div className="text-lg">
+            Score: {score.correct}/{score.total} ({percentage}%)
+          </div>
+          <button
+            onClick={resetScore}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded-lg transition-colors"
+          >
+            Reset Score
+          </button>
+        </div>
+      </div>
+
+      {/* Question Card */}
+      <div className="bg-gray-50 border rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-6 leading-relaxed">
+          {currentQuestion.question}
+        </h2>
+
+        {/* Options */}
+        <div className="space-y-3">
+          {currentQuestion.shuffledOptions.map((option, index) => {
+            let buttonClass = "w-full text-left p-4 rounded-lg border transition-all duration-200 ";
+            
+            if (!showAnswer) {
+              buttonClass += selectedAnswer === index 
+                ? "bg-blue-100 border-blue-400 text-blue-800" 
+                : "bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400";
+            } else {
+              if (index === currentQuestion.correctIndex) {
+                buttonClass += "bg-green-100 border-green-400 text-green-800 font-medium";
+              } else if (selectedAnswer === index && index !== currentQuestion.correctIndex) {
+                buttonClass += "bg-red-100 border-red-400 text-red-800";
+              } else {
+                buttonClass += "bg-gray-100 border-gray-300 text-gray-600";
+              }
+            }
+
+            return (
+              <button
+                key={index}
+                onClick={() => !showAnswer && handleAnswerSelect(index)}
+                disabled={showAnswer}
+                className={buttonClass}
+              >
+                <span className="font-medium mr-3">
+                  {String.fromCharCode(65 + index)}.
+                </span>
+                {option}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-6">
+          {!showAnswer ? (
+            <button
+              onClick={handleSubmit}
+              disabled={selectedAnswer === null}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                selectedAnswer !== null
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Submit Answer
+            </button>
+          ) : (
+            <button
+              onClick={handleNextQuestion}
+              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Next Question
+            </button>
+          )}
+        </div>
+
+        {/* Answer Feedback */}
+        {showAnswer && (
+          <div className={`mt-6 p-4 rounded-lg ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+            <div className={`font-semibold ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+              {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+            </div>
+            {!isCorrect && (
+              <div className="text-green-800 mt-2">
+                <strong>Correct answer:</strong> {currentQuestion.correct}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+        <strong>Smart Progress Tracking:</strong> Questions you answer correctly are removed from the pool and won't appear again. 
+        Questions you miss stay in the rotation for more practice. Track your mastery progress as you work toward 100% completion!
+      </div>
+    </div>
+  );
+};
+
+export default HematologyQuizComplete;
